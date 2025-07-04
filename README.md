@@ -1,1 +1,0 @@
-# pametna-kupnja-app
