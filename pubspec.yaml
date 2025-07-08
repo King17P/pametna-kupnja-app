@@ -1,1 +1,18 @@
-// Placeholder za pubspec.yaml
+name: pametna_kupnja_app
+description: Aplikacija za pametnu kupnju
+version: 1.0.0+1
+
+environment:
+  sdk: ">=3.1.0 <4.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.2
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+flutter:
+  uses-material-design: true
