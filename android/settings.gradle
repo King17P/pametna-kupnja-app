@@ -1,1 +1,2 @@
-// Placeholder for settings.gradle
+include ':app'
+rootProject.name = 'pametna_kupnja'
