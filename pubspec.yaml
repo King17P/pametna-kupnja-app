@@ -1,7 +1,7 @@
 name: pametna_kupnja
 description: A new Flutter project.
 
-publish_to: 'none'
+publish_to: 'none' # this prevents publishing to pub.dev
 
 version: 1.0.0+1
 
@@ -11,7 +11,10 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  cupertino_icons: ^1.0.2
   http: ^0.13.6
+  provider: ^6.1.2
+  google_fonts: ^6.1.0
 
 dev_dependencies:
   flutter_test:
