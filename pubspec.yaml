@@ -1,6 +1,6 @@
 name: pametna_kupnja
 description: A new Flutter project.
-publish_to: 'none'
+publish_to: 'none' # Ovo ostavi ako ne planiraš objavljivati na pub.dev
 
 version: 1.0.0+1
 
@@ -11,7 +11,8 @@ dependencies:
   flutter:
     sdk: flutter
 
-  cupertino_icons: ^1.0.2  # ← Dodaj ovo ako koristiš iOS ikone
+  # Obavezno za iOS/Android ikone
+  cupertino_icons: ^1.0.2
 
 dev_dependencies:
   flutter_test:
