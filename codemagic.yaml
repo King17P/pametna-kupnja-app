@@ -3,7 +3,8 @@ workflows:
     name: Build Android
     max_build_duration: 10
     environment:
-      flutter: stable
+  vars:
+    JAVA_VERSION: 17
     scripts:
       - flutter pub get
       - flutter build appbundle --debug
