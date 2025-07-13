@@ -1,4 +1,4 @@
-package com.example.pametnakupnja
+package com.example.pametna_kupnja
 
 import io.flutter.embedding.android.FlutterActivity
 
