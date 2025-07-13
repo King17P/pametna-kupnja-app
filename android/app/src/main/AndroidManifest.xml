@@ -1,6 +1,7 @@
 <application
-    android:label="pametna_kupnja"
+    android:label="pametnakupnja"
     android:icon="@mipmap/ic_launcher">
+    
     <activity
         android:name=".MainActivity"
         android:exported="true"
@@ -10,8 +11,8 @@
         android:hardwareAccelerated="true"
         android:windowSoftInputMode="adjustResize">
         <intent-filter>
-            <action android:name="android.intent.action.MAIN"/>
-            <category android:name="android.intent.category.LAUNCHER"/>
+            <action android:name="android.intent.action.MAIN" />
+            <category android:name="android.intent.category.LAUNCHER" />
         </intent-filter>
     </activity>
 </application>
