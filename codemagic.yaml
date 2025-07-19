@@ -1,0 +1,27 @@
+workflows:
+  build-apk:
+    name: Build APK and upload to GitHub
+    environment:
+      flutter: stable
+      vars:
+        PACKAGE_NAME: "app-release.apk"
+        GITHUB_REPOSITORY: "King17P/pametna-kupnja-app"
+        GITHUB_TAG: "v1.0.${CM_BUILD_ID}"
+    scripts:
+      - name: Install dependencies
+        script: flutter pub get
+      - name: Build APK
+        script: flutter build apk --release
+      - name: Rename APK
+        script: mv build/app/outputs/flutter-apk/app-release.apk $PACKAGE_NAME
+      - name: Publish to GitHub Releases
+        script: |
+          curl -sL https://git.io/goreleaser | bash -s -- \
+            --repo $GITHUB_REPOSITORY \
+            --tag $GITHUB_TAG \
+            --name "Build $GITHUB_TAG" \
+            --body "Automatski build sa Codemagica" \
+            --token $GITHUB_TOKEN \
+            --files $PACKAGE_NAME
+    artifacts:
+      - build/app/outputs/flutter-apk/app-release.apk
