@@ -1,44 +1,28 @@
 workflows:
   build-apk:
-    name: Build APK and Upload to GitHub
+    name: Build APK and publish to GitHub Releases
+    max_build_duration: 60
     environment:
       flutter: stable
       vars:
-        PACKAGE_NAME: "build/app/outputs/flutter-apk/app-release.apk"
-      groups:
-        - github_credentials
-
+        PACKAGE_PATH: build/app/outputs/flutter-apk/app-release.apk
     scripts:
       - name: Install dependencies
         script: |
           flutter pub get
-
-      - name: Build APK
+      - name: Build release APK
         script: |
           flutter build apk --release
-
-      - name: Install GitHub CLI (manual install)
+      - name: Install GitHub CLI
         script: |
-          curl -sSL https://github.com/cli/cli/releases/download/v2.39.1/gh_2.39.1_linux_amd64.tar.gz -o gh.tar.gz
-          tar -xzf gh.tar.gz
-          sudo mv gh_2.39.1_linux_amd64/bin/gh /usr/local/bin/
-
-      - name: Authenticate GitHub CLI
+          brew install gh
+      - name: Upload APK to GitHub Releases
         script: |
-          echo "$GITHUB_TOKEN" | gh auth login --with-token
-
-      - name: Publish to GitHub Releases
-        script: |
-          tag_name="v$(date +%Y.%m.%d.%H%M)"
-          apk_path="$PACKAGE_NAME"
-
-          echo "Creating GitHub release $tag_name with APK: $apk_path"
-
-          gh release create "$tag_name" "$apk_path" \
-            --repo "$GITHUB_REPOSITORY" \
-            --title "Codemagic APK Build" \
-            --notes "Automatski build i upload .apk datoteke s Codemagica." \
-            --target "$FCI_COMMIT"
-
+          set -e
+          TAG_NAME=$(git describe --tags --always)
+          gh release create "$TAG_NAME" "$PACKAGE_PATH" \
+            --title "Build $TAG_NAME" \
+            --notes "Automatski build s Codemagica"
     artifacts:
       - build/app/outputs/flutter-apk/app-release.apk
+
