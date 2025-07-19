@@ -1,27 +1,43 @@
 workflows:
   build-apk:
-    name: Build APK and upload to GitHub
+    name: Build APK and Upload to GitHub
     environment:
       flutter: stable
       vars:
-        PACKAGE_NAME: "app-release.apk"
-        GITHUB_REPOSITORY: "King17P/pametna-kupnja-app"
-        GITHUB_TAG: "v1.0.${CM_BUILD_ID}"
+        PACKAGE_NAME: "build/app/outputs/flutter-apk/app-release.apk"
+      groups:
+        - github_credentials # moraš imati ovu grupu sa GITHUB_TOKEN i GITHUB_REPOSITORY
+
     scripts:
+      # 1. Instalacija ovisnosti
       - name: Install dependencies
-        script: flutter pub get
+        script: |
+          flutter pub get
+
+      # 2. Build .apk datoteke
       - name: Build APK
-        script: flutter build apk --release
-      - name: Rename APK
-        script: mv build/app/outputs/flutter-apk/app-release.apk $PACKAGE_NAME
+        script: |
+          flutter build apk --release
+
+      # 3. Instalacija GitHub CLI i login
+      - name: Install GitHub CLI
+        script: |
+          brew install gh
+          echo "$GITHUB_TOKEN" | gh auth login --with-token
+
+      # 4. Upload .apk na GitHub Releases
       - name: Publish to GitHub Releases
         script: |
-          curl -sL https://git.io/goreleaser | bash -s -- \
-            --repo $GITHUB_REPOSITORY \
-            --tag $GITHUB_TAG \
-            --name "Build $GITHUB_TAG" \
-            --body "Automatski build sa Codemagica" \
-            --token $GITHUB_TOKEN \
-            --files $PACKAGE_NAME
+          apk_path=$(find build/app/outputs/flutter-apk -name "*.apk" | head -n 1)
+          tag_name="v$(date +%Y.%m.%d.%H%M)"
+          
+          echo "Creating release $tag_name for APK: $apk_path"
+
+          gh release create "$tag_name" "$apk_path" \
+            --repo "$GITHUB_REPOSITORY" \
+            --title "Automatski Codemagic build" \
+            --notes "Build from Codemagic with APK upload." \
+            --target $FCI_COMMIT
+
     artifacts:
       - build/app/outputs/flutter-apk/app-release.apk
