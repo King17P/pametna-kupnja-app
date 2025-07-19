@@ -6,38 +6,39 @@ workflows:
       vars:
         PACKAGE_NAME: "build/app/outputs/flutter-apk/app-release.apk"
       groups:
-        - github_credentials # moraš imati ovu grupu sa GITHUB_TOKEN i GITHUB_REPOSITORY
+        - github_credentials
 
     scripts:
-      # 1. Instalacija ovisnosti
       - name: Install dependencies
         script: |
           flutter pub get
 
-      # 2. Build .apk datoteke
       - name: Build APK
         script: |
           flutter build apk --release
 
-      # 3. Instalacija GitHub CLI i login
-      - name: Install GitHub CLI
+      - name: Install GitHub CLI (manual install)
         script: |
-          brew install gh
+          curl -sSL https://github.com/cli/cli/releases/download/v2.39.1/gh_2.39.1_linux_amd64.tar.gz -o gh.tar.gz
+          tar -xzf gh.tar.gz
+          sudo mv gh_2.39.1_linux_amd64/bin/gh /usr/local/bin/
+
+      - name: Authenticate GitHub CLI
+        script: |
           echo "$GITHUB_TOKEN" | gh auth login --with-token
 
-      # 4. Upload .apk na GitHub Releases
       - name: Publish to GitHub Releases
         script: |
-          apk_path=$(find build/app/outputs/flutter-apk -name "*.apk" | head -n 1)
           tag_name="v$(date +%Y.%m.%d.%H%M)"
-          
-          echo "Creating release $tag_name for APK: $apk_path"
+          apk_path="$PACKAGE_NAME"
+
+          echo "Creating GitHub release $tag_name with APK: $apk_path"
 
           gh release create "$tag_name" "$apk_path" \
             --repo "$GITHUB_REPOSITORY" \
-            --title "Automatski Codemagic build" \
-            --notes "Build from Codemagic with APK upload." \
-            --target $FCI_COMMIT
+            --title "Codemagic APK Build" \
+            --notes "Automatski build i upload .apk datoteke s Codemagica." \
+            --target "$FCI_COMMIT"
 
     artifacts:
       - build/app/outputs/flutter-apk/app-release.apk
