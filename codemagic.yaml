@@ -5,7 +5,7 @@ workflows:
       flutter: stable
       vars:
         PACKAGE_NAME: build/app/outputs/flutter-apk/app-release.apk
-        GITHUB_TOKEN: Encrypted(...) # NE DIRAJ – koristi se iz Codemagica
+        GITHUB_TOKEN: $GITHUB_TOKEN
       android_signing:
         - keystore_reference # ako koristiš vlastiti potpis
     scripts:
