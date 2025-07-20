@@ -1,28 +1,41 @@
 workflows:
-  build-apk:
-    name: Build APK and publish to GitHub Releases
-    max_build_duration: 60
+  apk-release:
+    name: Build & Upload APK to GitHub Releases
     environment:
       flutter: stable
       vars:
-        PACKAGE_PATH: build/app/outputs/flutter-apk/app-release.apk
+        PACKAGE_NAME: build/app/outputs/flutter-apk/app-release.apk
+        GITHUB_TOKEN: Encrypted(...) # NE DIRAJ – koristi se iz Codemagica
+      android_signing:
+        - keystore_reference # ako koristiš vlastiti potpis
     scripts:
       - name: Install dependencies
-        script: |
-          flutter pub get
+        script: flutter pub get
+
       - name: Build release APK
+        script: flutter build apk --release
+
+      - name: Upload APK to GitHub Releases via curl
         script: |
-          flutter build apk --release
-      - name: Install GitHub CLI
-        script: |
-          brew install gh
-      - name: Upload APK to GitHub Releases
-        script: |
-          set -e
-          TAG_NAME=$(git describe --tags --always)
-          gh release create "$TAG_NAME" "$PACKAGE_PATH" \
-            --title "Build $TAG_NAME" \
-            --notes "Automatski build s Codemagica"
+          TAG_NAME=release-$(date +%Y%m%d%H%M%S)
+          
+          echo "Creating release with tag $TAG_NAME"
+          curl -s -X POST \
+            -H "Authorization: token $GITHUB_TOKEN" \
+            -H "Content-Type: application/json" \
+            -d "{\"tag_name\": \"$TAG_NAME\", \"name\": \"$TAG_NAME\", \"body\": \"Automatski build iz Codemagica\", \"draft\": false, \"prerelease\": false}" \
+            https://api.github.com/repos/King17P/pametna-kupnja-app/releases > response.json
+
+          UPLOAD_URL=$(cat response.json | grep upload_url | cut -d '"' -f 4 | cut -d '{' -f 1)
+
+          echo "Uploading APK to $UPLOAD_URL"
+          curl -s -X POST \
+            -H "Authorization: token $GITHUB_TOKEN" \
+            -H "Content-Type: application/vnd.android.package-archive" \
+            --data-binary @"$PACKAGE_NAME" \
+            "$UPLOAD_URL?name=app-release.apk"
+
     artifacts:
       - build/app/outputs/flutter-apk/app-release.apk
+
 
